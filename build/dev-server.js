@@ -11,6 +11,7 @@ var express = require('express')
 var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
+var bodyParser = require("body-parser");
 
 // default port where dev server listens for incoming traffic
 var port = process.env.PORT || config.dev.port
@@ -61,6 +62,10 @@ app.use(hotMiddleware)
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use(staticPath, express.static('./static'))
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
+var routes = require('../api.js')(app);
 
 var uri = 'http://localhost:' + port
 

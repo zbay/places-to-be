@@ -1,26 +1,22 @@
 <template>
   <div class="Home">
     <router-link to="/about">What is this?</router-link>
-    <destination-form></destination-form>
+    <search-find></search-find>
   </div>
 </template>
 
 <script>
-import DestinationForm from './DestinationForm'
+import SearchFind from './SearchFind'
 
 export default {
+
   name: 'home',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App',
-      users: [{firstname: 'Sebastian', lastname: 'Eschweiler'},
-        {firstname: 'Bill', lastname: 'Smith'},
-        {firstname: 'John', lastname: 'Porter'}],
-      input_val: ''
     }
   },
   components: {
-    DestinationForm
+    SearchFind
   }
 }
 </script>

@@ -12,23 +12,23 @@
                         <div class="row">
                             <div class="col-md-1"></div>
                             <div class="col-md-2">
-                                <input type="radio" value="Restaurant" v-model="destination.type"/>
+                                <input type="radio" :name="'Destination' + index" value="restaurants" v-model="destination.kind"/>
                                 <label class="nested">Sit down and eat</label>
                             </div>
                             <div class="col-md-2">
-                                <input type="radio" value="Active" v-model="destination.type"/>
+                                <input type="radio":name="'Destination' + index" value="active" v-model="destination.kind"/>
                                 <label class="nested">Be active</label>
                             </div>
                             <div class="col-md-2">
-                                <input type="radio" value="Arts" v-model="destination.type"/>
+                                <input type="radio" :name="'Destination' + index" value="arts" v-model="destination.kind"/>
                                 <label class="nested">Be entertained</label>
                             </div>
                             <div class="col-md-2">
-                                <input type="radio" value="Nightlife" v-model="destination.type"/>
+                                <input type="radio" :name="'Destination' + index" value="nightlife" v-model="destination.kind"/>
                                 <label class="nested">Go out and drink</label>
                             </div>
                             <div class="col-md-2">
-                                <input type="radio" value="Miscellaneous" v-model="destination.type"/>
+                                <input type="radio" :name="'Destination' + index" value="All" v-model="destination.kind"/>
                                 <label class="nested">LOL sO rAnDoM!</label>
                             </div>
                             <div class="col-md-1"></div>
@@ -40,45 +40,69 @@
             <button v-if="destinations.length >= 2" v-on:click="removeDestination()">Remove Destination</button>
         </div>
         <div class="form-group">
-            <label>Location</label>
+            <label>City</label>
             <br />
-            <input type="text" name="Location" v-model="location" v-validate="'required|min:2'"/>
+            <input type="text" name="City" v-model="city" v-validate="'required|min:2'"/>
         </div>
         <div class="form-group">
             <label>Search Radius (miles)</label>
             <br />
-            <input type="text" name="Radius" v-model="radius" v-validate="'required|numeric|min_value:0'"/>
+            <input type="text" name="Radius" v-model="radius" v-validate="'required|numeric|min_value:0|max_value:25'"/>
         </div>
-        <div class="help" v-show="errors.has('Location')">{{ errors.first('Location') }}</div>
+        <div class="help" v-show="errors.has('City')">{{ errors.first('City') }}</div>
         <div class="help" v-show="errors.has('Radius')">{{ errors.first('Radius') }}</div>
-        <button v-on:click="sendUp()">Find Places to Go</button>
+        <button v-on:click="search()">Find Places to Go</button>
     </form>
     </div>
 </template>   
 
 <script>
+var axios = require("axios");
 
 export default {
-  name: 'destination-form',
+  name: 'search-find',
   data () {
     return {
-      location: 'Washington, DC',
+      city: 'Washington, DC',
       radius: '25',
-      destinations: [{'type': 'Restaurant'}],
-      destinationTypes: ['Restaurant', 'Active', 'Arts', 'Nightlife', 'Miscellaneous']
+      destinations: [{'kind': 'restaurants'}],
+      destinationTypes: ['restaurants', 'active', 'arts', 'nightlife', 'All']
     }
   },
+  
   methods: {
-    sendUp: function () {
-        
+    search: function () {
+        event.preventDefault()
+        axios({
+            method: 'post',
+            url: '/search',
+            data: {
+                city: this.city,
+                radius: this.radius,
+                destinations: this.destinations,
+                queryTypes: this.requestedDestinationTypes()
+            }
+        });
     },
+    
     addDestination: function() {
         event.preventDefault() // prevents form from being submitted
-        this.destinations.push({'type': 'Restaurant'})
+        this.destinations.push({'kind': 'restaurants'})
     },
+    
     removeDestination: function() {
         event.preventDefault() // prevents form from being submitted
         this.destinations.pop()
+    },
+    
+    requestedDestinationTypes(){
+        var kinds = []
+        for(var i = 0; i < this.destinations.length; i++){
+            if(kinds.indexOf(this.destinations[i].kind) === -1){
+                kinds.push(this.destinations[i].kind)
+            }
+        }
+        return kinds;
     }
   }
 }
