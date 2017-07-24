@@ -28,7 +28,7 @@
                                 <label class="nested">Go out and drink</label>
                             </div>
                             <div class="col-md-2">
-                                <input type="radio" :name="'Destination' + index" value="All" v-model="destination.kind"/>
+                                <input type="radio" :name="'Destination' + index" value="" v-model="destination.kind"/>
                                 <label class="nested">LOL sO rAnDoM!</label>
                             </div>
                             <div class="col-md-1"></div>
@@ -66,7 +66,7 @@ export default {
       city: 'Washington, DC',
       radius: '25',
       destinations: [{'kind': 'restaurants'}],
-      destinationTypes: ['restaurants', 'active', 'arts', 'nightlife', 'All']
+      destinationTypes: ['restaurants', 'active', 'arts', 'nightlife', '']
     }
   },
   
