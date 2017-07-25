@@ -51,23 +51,34 @@
         </div>
         <div class="help" v-show="errors.has('City')">{{ errors.first('City') }}</div>
         <div class="help" v-show="errors.has('Radius')">{{ errors.first('Radius') }}</div>
+        <div class="help" v-show="this.errorMessage">No data was retrieved from Yelp. Please try again.</div>
         <button v-on:click="search()">Find Places to Go</button>
     </form>
+    <hr />
+    <results-list v-if="searchresults" v-bind:searchresults="searchresults"></results-list>
     </div>
 </template>   
 
 <script>
+import ResultsList from './ResultsList'
 var axios = require("axios");
 
 export default {
   name: 'search-find',
+  
   data () {
     return {
       city: 'Washington, DC',
       radius: '25',
       destinations: [{'kind': 'restaurants'}],
-      destinationTypes: ['restaurants', 'active', 'arts', 'nightlife', '']
+      destinationTypes: ['restaurants', 'active', 'arts', 'nightlife', ''],
+      errorMessage: null,
+      searchresults: null
     }
+  },
+  
+  components: {
+    ResultsList
   },
   
   methods: {
@@ -82,6 +93,13 @@ export default {
                 destinations: this.destinations,
                 queryTypes: this.requestedDestinationTypes()
             }
+        }).then((data) => {
+            this.errorMessage = null;
+            this.searchresults = data.data;
+            console.log(JSON.stringify(this.searchresults));
+        }).catch((err) => {
+            this.searchresults = null;
+            this.errorMessage = err;
         });
     },
     
@@ -95,7 +113,7 @@ export default {
         this.destinations.pop()
     },
     
-    requestedDestinationTypes(){
+    requestedDestinationTypes(){ // returns each unique destination type (non-redundant)
         var kinds = []
         for(var i = 0; i < this.destinations.length; i++){
             if(kinds.indexOf(this.destinations[i].kind) === -1){

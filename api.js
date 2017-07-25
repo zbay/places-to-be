@@ -13,7 +13,7 @@ module.exports = function Routes(app){
     app.post("/search", function process(req, res){ // process search requests
         const requestData = req.body;
         
-        let promise = new Promise((fulfill, reject) => {
+        let promise = new Promise((fulfill, reject) => { // begin promise 1
             let searchRequests = [];
             
             let searchRadius = requestData.radius * 1609.344; // convert radius from miles to meters
@@ -32,7 +32,7 @@ module.exports = function Routes(app){
                     fulfill(searchRequests);
                 }
             }
-            }).then((searchRequests) => {
+            }).then((searchRequests) => { // end promise 1, begin promise 2
                 yelp.accessToken(clientId, clientSecret).then(response => { // get a yelp token
                     const client = yelp.client(response.jsonBody.access_token); // establish a client using the token
                     let randomDestinations = []; // array of destination objects
@@ -43,37 +43,33 @@ module.exports = function Routes(app){
                         client.search(searchRequests[i]).then(response => { // ...search for that destination type
                             let results = response.jsonBody.businesses;
                             deleteRedundant(destNames, results); // delete redundant destinations from other categories
-                            console.log(results);
                             
                             for(let j = 0; j < requestData.destinations.length; j++){ // for each requested destination...
                                 if(searchRequests[i].categories === requestData.destinations[j].kind){ //...if the destination's type matches that of the outer loop...
                                     let randomResult = randomDestination(requestData, results); //...pick random destination
                                     deleteResult(randomResult.name, results); // delete the chosen destination from further consideration (avoid redundancy)
-                                    console.log(results.length);
                                     randomDestinations[j] = randomResult; 
                                     destNames.push(randomResult.name);
                                     count++;
                                     if(count === requestData.destinations.length){ // if the random array has been fully populated, return results
-                                        return randomDestinations;
+                                        res.json(randomDestinations); // send the results to the client  
+                                        return;
                                     }
                                 }
                             }
-                        
-                        }).then(results => {
-                            console.log(results);
-                            return JSON.stringify(results);
-                        }).catch(e => {
-                            console.log(e);
+                        }).then(() => { /* end Yelp search promise */ 
+                            return;
                         });
                     }
-                }).catch(e => {
-                    console.log(e);
+                }).then(() => { /*end Yelp promise*/
+                    return;
                 });
-            }).then(results => {
-                res.json(results); // send the results to the client  
+            }).then(randomDestinations => { /* end promise 2, begin promise 3 */ 
+                console.log("Finished!");
             })
-            .catch((error) => {
+            .catch((error) => { // process any errors
                 console.error(error);
+                res.json({"error": error});
             });
     });
     
