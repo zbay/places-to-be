@@ -60,6 +60,8 @@
 </template>   
 
 <script>
+// style buttons? https://codepen.io/AngelaVelasquez/pen/Eypnq
+
 import ResultsList from './ResultsList'
 var axios = require("axios");
 
@@ -137,9 +139,20 @@ export default {
 }
 
 .help{
-    color:red;
+    color:#D80032;
+    font-size:30px;
+    font-weight:bold;
+    font-family:Arial;
     font-weight:bold;
     padding:10px;
+    margin-bottom:5px;
 }
 
+.container{
+    font-family: Arial;
+}
+
+button{
+    border-radius:5px;
+}
 </style>

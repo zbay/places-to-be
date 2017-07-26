@@ -1,3 +1,5 @@
+// problem: seasonal events show up in results
+
 const express = require("express");
 const yelp = require('yelp-fusion');
 const jsonQuery = require("json-query");
@@ -79,9 +81,9 @@ module.exports = function Routes(app){
                 return {
                     name: "Not found! Try again",
                     loc: "N/A",
-                    image_url: "N/A",
-                    url: "N/A",
-                    phone: "N/A"
+                    image_url: "./static/question-mark.jpg",
+                    url: "",
+                    phone: ""
                 };
             }
             else{
@@ -90,7 +92,7 @@ module.exports = function Routes(app){
                 return {
                     name: randomDestination.name || "Unnamed", 
                     loc: randomDestination["location"].display_address.join(", ") || "Varies",
-                    image_url: randomDestination.image_url || "N/A",
+                    image_url: randomDestination.image_url || "./static/question-mark.jpg",
                     url: randomDestination.url || "N/A",
                     phone: randomDestination.phone || "N/A"
                 };
