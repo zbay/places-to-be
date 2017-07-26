@@ -17,17 +17,11 @@ module.exports = function Routes(app){
         
         let promise = new Promise((fulfill, reject) => { // begin promise 1
             let searchRequests = [];
-            
-            let searchRadius = requestData.radius * 1609.344; // convert radius from miles to meters
-            if(searchRadius > 40000){ // yelp only accepts up to 40000 meters
-                searchRadius = 40000;
-            }
-            searchRadius = Math.floor(searchRadius); // yelp API only accepts integers for distance
         
             for(let i = 0; i < requestData.queryTypes.length; i++){ // create a search request for each necessary category
                 searchRequests[i] = {
                 location: requestData.city,
-                radius: searchRadius, 
+                radius: fixRadius(requestData.radius), 
                 categories: requestData.queryTypes[i]
                 }
                 if(searchRequests.length === requestData.queryTypes.length){ // verify that all searchRequests have been generated before sending them along
@@ -48,7 +42,7 @@ module.exports = function Routes(app){
                             
                             for(let j = 0; j < requestData.destinations.length; j++){ // for each requested destination...
                                 if(searchRequests[i].categories === requestData.destinations[j].kind){ //...if the destination's type matches that of the outer loop...
-                                    let randomResult = randomDestination(requestData, results); //...pick random destination
+                                    let randomResult = randomDestination(results, searchRequests[i].categories); //...pick random destination
                                     deleteResult(randomResult.name, results); // delete the chosen destination from further consideration (avoid redundancy)
                                     randomDestinations[j] = randomResult; 
                                     destNames.push(randomResult.name);
@@ -71,33 +65,65 @@ module.exports = function Routes(app){
             })
             .catch((error) => { // process any errors
                 console.error(error);
-                res.json({"error": error});
+                res.json({"error": "The Yelp API messed up. Try again later!"});
             });
     });
     
-    function randomDestination(request, results){
+    function randomDestination(results, category){
         let count = 0;
             if(results.length == 0){ // if no results in that category were retrieved, send back placeholder data
                 return {
-                    name: "Not found! Try again",
+                    name: "No result! Try again?",
                     loc: "N/A",
                     image_url: "./static/question-mark.jpg",
                     url: "",
-                    phone: ""
+                    phone: "",
+                    rating: 0,
+                    reviews: "Reviews: 0",
+                    category: category
                 };
             }
             else{
                 let randomDestination = results[Math.floor((Math.random() * results.length))];  // extract a random destination from the category
-                //console.log(randomDestination);
                 return {
                     name: randomDestination.name || "Unnamed", 
                     loc: randomDestination["location"].display_address.join(", ") || "Varies",
                     image_url: randomDestination.image_url || "./static/question-mark.jpg",
                     url: randomDestination.url || "N/A",
-                    phone: randomDestination.phone || "N/A"
+                    phone: randomDestination.display_phone || "N/A",
+                    rating: Math.round(randomDestination.rating) || 0,
+                    reviews: ("Yelp reviews: " + randomDestination.review_count) || "Reviews: 0",
+                    category: category
                 };
             }
     }
+    
+    app.post("/swap", function(req, res){
+        const requestData = req.body;
+        //console.log(requestData);
+        let searchRequest = {
+                location: requestData.city,
+                radius: fixRadius(requestData.radius), 
+                categories: requestData.category
+        };
+                yelp.accessToken(clientId, clientSecret).then(response => { // get a yelp token
+                    const client = yelp.client(response.jsonBody.access_token); // establish a client using the token
+                    
+                    client.search(searchRequest).then(response => { // ...search for that destination type
+                        let results = response.jsonBody.businesses;
+                        deleteRedundant(requestData.otherDests, results); // delete redundant destinations from other categories
+                        res.json(randomDestination(results, searchRequest.categories)); //...pick random destination, send to client
+                        return;
+                    }).then((results) => { /* end Yelp search promise */ 
+                        return;
+                    });
+                }).then((randomResult) => { /*end Yelp promise*/
+                    return;
+                }).catch((err) => {
+                    console.log(err);
+                    res.json({"error": "The Yelp API messed up. Try again later!"});
+                });
+    });
     
     function deleteResult(name, results){ // helper to delete a chosen result, to prevent redundancy
         for(let i = 0; i < results.length; i++){
@@ -111,8 +137,16 @@ module.exports = function Routes(app){
     function deleteRedundant(alreadySelected, results){ // deletes redundant destinations previously chosen from other categories
         for(let i = 0; i < alreadySelected.length; i++){
             if(alreadySelected[i]){
-             deleteResult(alreadySelected[i], results);   
+                deleteResult(alreadySelected[i], results);   
             }
         }
+    }
+    
+    function fixRadius(radius){
+            radius = radius * 1609.344; // convert radius from miles to meters
+            if(radius > 40000){ // yelp only accepts up to 40000 meters
+                radius = 40000;
+            }
+            return Math.floor(radius); // yelp API only accepts integers for distance
     }
     }

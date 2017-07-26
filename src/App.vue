@@ -11,6 +11,11 @@
       <h2>Making your day</h2>
     </div>
     <router-view></router-view>
+    <footer>
+        <div className="VertCenterTop"></div>
+        <div>&copy; 2017 - Zbay Industries</div>
+        <div className="VertCenterBottom"></div>
+    </footer>
   </div>
 </template>
 
@@ -68,5 +73,27 @@ a {
   height: 50px;
   min-width: 50px;
   max-width: 100px;
+}
+
+footer{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      align-self:center;
+      background-color:white;
+      color:black;
+      border: 20px double #D80032;
+      border-radius: 10px;
+      font-size:200%;
+      padding:30px;
+      text-shadow: 3px 3px orange;
+      margin-top:40px;
+}
+.VertCenterTop{
+  align-self: flex-start;
+}
+.VertCenterBottom{
+  align-self: flex-end;
 }
 </style>

@@ -9,7 +9,7 @@
                     <label>Destination {{index+1}}</label>
                     <br />
                     <div class="container">
-                        <div class="row">
+                        <div class="row destRow">
                             <div class="col-md-1"></div>
                             <div class="col-md-2">
                                 <input type="radio" :name="'Destination' + index" value="restaurants" v-model="destination.kind"/>
@@ -55,7 +55,7 @@
         <button v-on:click="search()">Find Places to Go</button>
     </form>
     <hr />
-    <results-list v-if="searchresults" v-bind:searchresults="searchresults"></results-list>
+    <results-list v-if="searchresults" v-bind:searchresults="searchresults" v-bind:city="city" v-bind:radius="radius"></results-list>
     </div>
 </template>   
 
@@ -98,7 +98,6 @@ export default {
         }).then((data) => {
             this.errorMessage = null;
             this.searchresults = data.data;
-            console.log(JSON.stringify(this.searchresults));
         }).catch((err) => {
             this.searchresults = null;
             this.errorMessage = err;
@@ -136,6 +135,11 @@ export default {
 #destinationList{
     list-style-type:none;
     padding:0;
+}
+
+.destRow{
+    margin-top:10px;
+    margin-bottom:10px;
 }
 
 .help{
