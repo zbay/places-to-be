@@ -1,16 +1,20 @@
-// problem: seasonal events show up in results
+var express = require('express');
+var path = require('path');
+var serveStatic = require('serve-static');
+var app = express();
+app.use(serveStatic(__dirname));
+Routes(app);
+var port = process.env.PORT || 5000;
+app.listen(port);
+console.log('server started '+ port);
 
-const express = require("express");
 const yelp = require('yelp-fusion');
 require('dotenv').config(); // access process.env variables
 
 const clientId = process.env.YELP_CLIENT_ID;
 const clientSecret = process.env.YELP_CLIENT_SECRET;
 
-const app = express();
-
-module.exports = function Routes(app){
-
+function Routes(app){
     app.post("/search", function process(req, res){ // process search requests
         const requestData = req.body;
         
