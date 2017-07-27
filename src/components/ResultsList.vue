@@ -6,9 +6,9 @@
                 <div class="row inside-li">
                     <div class="col-lg-1"></div>
                     <div class="col-lg-5 left-column">
-                        <a v-bind:href="destination.url" class="title">{{destination.name}}</a>
+                        <a v-bind:href="destination.url" class="title">{{destination.name || "No result! Try again?"}}</a>
                         <br />
-                        {{destination.loc}}
+                        {{destination.loc || "N/A"}}
                         <br />
                         {{destination.phone}}
                         <br />
@@ -26,6 +26,9 @@
                 </div>
             </li>
         </ol>
+        <div id="disclaimer">
+            <p>Make sure to check the hours or schedule before visiting any of these fine places!</p>
+        </div>
     </div>
 </template>
 
@@ -40,14 +43,18 @@ export default {
     }
   },
   
-  props: ['searchresults', 'city', 'radius'],
+  props: {
+    searchresults: {
+        default: []
+    },
+    city: {},
+    radius: {},
+  },
   
  methods: {
     swapOut: function(category, index){
         //send out request to swap a destination for another one in the same category
         event.preventDefault();
-        console.log(this.city);
-        console.log(JSON.stringify(this.searchresults));
         axios({
             method: 'post',
             url: '/swap',
@@ -65,17 +72,31 @@ export default {
         });
     },
     getNames: function(){
-        if(this.destNames.length == 0){
+        if(this.destNames.length === 0){
             let count = 0;
             for(let i= 0; i < this.searchresults.length; i++){
                 this.destNames.push(this.searchresults[i].name);
                 count++;
                 if(count === this.searchresults.length){
+                    console.log(this.destNames);
                     return this.destNames;
                 }
             }
         }
         else{
+            if(this.destNames.length > 33){ // if the memory list gets too long, purge it and replace with the current destinations
+                this.destNames = [];
+                let count = 0;
+                for(let i= 0; i < this.searchresults.length; i++){
+                    this.destNames.push(this.searchresults[i].name);
+                    count++;
+                    if(count === this.searchresults.length){
+                        console.log(this.destNames);
+                        return this.destNames;
+                    }
+                }
+            }
+            console.log(this.destNames);
             return this.destNames;
         }
     }
@@ -100,6 +121,10 @@ export default {
     padding:0;
     margin-left:10%;
     margin-right:10%;
+}
+
+#disclaimer{
+margin-top:30px;
 }
 
 li{

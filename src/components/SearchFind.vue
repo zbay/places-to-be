@@ -10,7 +10,7 @@
                     <br />
                     <div class="container">
                         <div class="row destRow">
-                            <div class="col-md-1"></div>
+                            <div class="col-md-2"></div>
                             <div class="col-md-2">
                                 <input type="radio" :name="'Destination' + index" value="restaurants" v-model="destination.kind"/>
                                 <label class="nested">Sit down and eat</label>
@@ -27,11 +27,7 @@
                                 <input type="radio" :name="'Destination' + index" value="nightlife" v-model="destination.kind"/>
                                 <label class="nested">Go out and drink</label>
                             </div>
-                            <div class="col-md-2">
-                                <input type="radio" :name="'Destination' + index" value="" v-model="destination.kind"/>
-                                <label class="nested">LOL sO rAnDoM!</label>
-                            </div>
-                            <div class="col-md-1"></div>
+                            <div class="col-md-2"></div>
                         </div>
                     </div>
                 </li>
@@ -55,7 +51,8 @@
         <button v-on:click="search()">Find Places to Go</button>
     </form>
     <hr />
-    <results-list v-if="searchresults" v-bind:searchresults="searchresults" v-bind:city="city" v-bind:radius="radius"></results-list>
+    <results-list v-if="searchresults" v-bind:searchresults="searchresults" v-bind:city="city" v-bind:radius="radius">
+    </results-list>
     </div>
 </template>   
 
